@@ -5,7 +5,7 @@
 #include <eeros/sequencer/Sequencer.hpp>
 #include <eeros/hal/HAL.hpp>
 #include "ControlSystem.hpp"
-#include "MyRobotSafetyProperties.hpp"
+#include "BlenderSafetyProperties.hpp"
 #include "MainSequence.hpp"
 
 void signalHandler(int signum)
@@ -31,7 +31,7 @@ int main(int argc, char **argv)
     ControlSystem cs(dt);
 
     log.info() << "Initializing safety system...";
-    MyRobotSafetyProperties sp(cs, dt);
+    BlenderSafetyProperties sp(cs, dt);
     eeros::safety::SafetySystem ss(sp, dt);
     cs.timedomain.registerSafetyEvent(ss, sp.doSystemOff); // fired if timedomain fails to run properly
     signal(SIGINT, signalHandler);

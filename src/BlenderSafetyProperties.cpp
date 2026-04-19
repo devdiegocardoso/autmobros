@@ -1,6 +1,6 @@
-#include "MyRobotSafetyProperties.hpp"
+#include "BlenderSafetyProperties.hpp"
 
-MyRobotSafetyProperties::MyRobotSafetyProperties(ControlSystem &cs, double dt)
+BlenderSafetyProperties::BlenderSafetyProperties(ControlSystem &cs, double dt)
     : cs(cs),
     
       slSystemOff("System is offline"),
