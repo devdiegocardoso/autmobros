@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5.1)
-project(blender_project)   # MODIFY Project name
+project(car_robot_project)   # MODIFY Project name
 
 set(CMAKE_CXX_STANDARD 14)
 

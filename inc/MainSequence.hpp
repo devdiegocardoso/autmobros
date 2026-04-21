@@ -4,7 +4,7 @@
 #include <eeros/sequencer/Sequencer.hpp>
 #include <eeros/sequencer/Sequence.hpp>
 #include <eeros/safety/SafetySystem.hpp>
-#include "BlenderSafetyProperties.hpp"
+#include "CarRobotSafetyProperties.hpp"
 #include "ControlSystem.hpp"
 #include <eeros/sequencer/Wait.hpp>
 
@@ -13,7 +13,7 @@ class MainSequence : public eeros::sequencer::Sequence
 public:
     MainSequence(std::string name, eeros::sequencer::Sequencer &seq,
                  eeros::safety::SafetySystem &ss,
-                 BlenderSafetyProperties &sp, ControlSystem &cs)
+                 CarRobotSafetyProperties &sp, ControlSystem &cs)
         : eeros::sequencer::Sequence(name, seq),
           ss(ss),
           sp(sp),
@@ -37,7 +37,7 @@ public:
 private:
     eeros::safety::SafetySystem &ss;
     ControlSystem &cs;
-    BlenderSafetyProperties &sp;
+    CarRobotSafetyProperties &sp;
 
     eeros::sequencer::Wait sleep;
 };

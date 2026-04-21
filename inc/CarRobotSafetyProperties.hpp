@@ -1,14 +1,14 @@
-#ifndef BlenderSAFETYPROPERTIES_HPP_
-#define BlenderSAFETYPROPERTIES_HPP_
+#ifndef CarRobotSafetyProperties_HPP_
+#define CarRobotSafetyProperties_HPP_
 
 #include <eeros/safety/SafetyProperties.hpp>
 #include <eeros/hal/HAL.hpp>
 #include "ControlSystem.hpp"
 
-class BlenderSafetyProperties : public eeros::safety::SafetyProperties
+class CarRobotSafetyProperties : public eeros::safety::SafetyProperties
 {
 public:
-    BlenderSafetyProperties(ControlSystem &cs, double dt);
+    CarRobotSafetyProperties(ControlSystem &cs, double dt);
 
     // Define all possible events
     eeros::safety::SafetyEvent doSystemOff;
@@ -28,4 +28,4 @@ private:
     ControlSystem &cs;
 };
 
-#endif // BlenderSAFETYPROPERTIES_HPP_
+#endif // CarRobotSafetyProperties_HPP_
