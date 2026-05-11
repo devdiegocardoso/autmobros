@@ -33,8 +33,6 @@ int main(int argc, char **argv)
     CarRobotSafetyProperties sp(cs, dt);
     eeros::safety::SafetySystem ss(sp, dt);
     cs.timedomain.registerSafetyEvent(ss, sp.abort); // fired if timedomain fails to run properly
-    cs.signalChecker.registerSafetyEvent(ss, sp.emergency); // fired if signalChecker detects a signal out of range
-    cs.signalChecker.setActiveLevel(sp.slSystemOn); // signalChecker is only active when system is on
     signal(SIGINT, signalHandler);
 
     log.info() << "Initializing sequencer...";
