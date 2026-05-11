@@ -131,6 +131,9 @@ CarRobotSafetyProperties::CarRobotSafetyProperties(ControlSystem &cs, double dt)
 
     slSystemOn.setLevelAction([&, dt] (SafetyContext *privateContext) {
         // Actions to execute when the system is online
+        if (slSystemOn.getNofActivations() == 1) {
+            cs.signalChecker.reset();        // re-arm once on entry
+        }
         if(slSystemOn.getNofActivations() * dt >= 1) {
             privateContext->triggerEvent(powerOn);
         }
