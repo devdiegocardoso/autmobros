@@ -5,7 +5,7 @@
 #include <eeros/control/InputSub.hpp>
 #include <eeros/control/Sum.hpp>
 #include <eeros/control/Gain.hpp>
-#include <eeros/control/D.hpp>
+#include <eeros/control/I.hpp>
 
 using namespace eeros::control;
 
@@ -13,33 +13,34 @@ template <typename T = double>
 class Controller : public Block
 {
 public:
-    Controller(double om0, double D, double M)
-        : q(this),
-          Kp(om0 * om0),
-          Kd(2.0 * D * om0),
+
+    Controller(double om0, double D, double M, T eLimit)
+        : qd(this),
+          KP(2.0 * D * om0),
+          KI(om0 * om0),
           M(M)
     {
-        init();
+        init(eLimit);
     }
 
-    Controller(double fTask, double D, double s, double M)
-        : q(this),
-          Kp(fTask / 2.0 / s / D * fTask / 2.0 / s / D),
-          Kd(fTask / s),
+    Controller(double fTask, double D, double s, double M, T eLimit)
+        : qd(this),
+          KP(fTask / s),
+          KI(fTask / 2.0 / s / D * fTask / 2.0 / s / D),
           M(M)
     {
-        init();
+        init(eLimit);
     }
 
     virtual Input<T> &getIn(uint8_t index)
     {
         if (index == 0)
         {
-            return e.getIn(0);
+            return ed.getIn(0);
         }
         else if (index == 1)
         {
-            return q;
+            return qd;
         }
         else
         {
@@ -55,7 +56,7 @@ public:
         }
         else if (index == 1)
         {
-            return qd.getOut();
+            return qd;
         }
         else
         {
@@ -65,52 +66,69 @@ public:
 
     virtual void run()
     {
-        e.run();
-        Kp.run();
         ed.run();
-        Kd.run();
-        qdd_c.run();
+        KP.run();
+        e.run();
+        KI.run();
+        qddC.run();
         M.run();
-        qd.run();
+    }
+
+    void enable()
+    {
+        e.enable();
+    }
+
+    void disable()
+    {
+        e.disable();
+    }
+
+    void setELimit(T eLimit)
+    {
+        e.setLimit(eLimit, -eLimit);
     }
 
 protected:
-    InputSub<T> q;
-    Sum<2, T> e, qdd_c;
-    Gain<T> Kp, Kd, M;
-    D<T> ed, qd;
+    InputSub<T> qd;
+    Sum<2, T> ed, qddC;
+    Gain<T> KP, KI, M;
+    I<T> e;
 
 private:
-    void init()
+
+    void init(T eLimit)
     {
         // Name all blocks
-        e.setName("e");
-        Kp.setName("Kp");
-        ed.setName("ed");
-        Kd.setName("Kd");
-        qdd_c.setName("qdd_c");
-        M.setName("M");
-        qd.setName("qd");
+        ed.setName("controller->ed");
+        KP.setName("controller->KP");
+        e.setName("controller->e");
+        KI.setName("controller->KI");
+        qddC.setName("controller->qddC");
+        M.setName("controller->M");
 
         // Name all signals
-        e.getOut().getSignal().setName("e [rad]");
-        Kp.getOut().getSignal().setName("qdd_cp [rad/s^2]");
         ed.getOut().getSignal().setName("ed [rad/s]");
-        Kd.getOut().getSignal().setName("qdd_cd [rad/s^2]");
-        qdd_c.getOut().getSignal().setName("qdd_c [rad/s^2]");
+        KP.getOut().getSignal().setName("qddCP [rad/s^2]");
+        e.getOut().getSignal().setName("e [rad]");
+        KI.getOut().getSignal().setName("qddCI [rad/s^2]");
+        qddC.getOut().getSignal().setName("qddC [rad/s^2]");
         M.getOut().getSignal().setName("Q [Nm]");
-        qd.getOut().getSignal().setName("qd [rad/s]");
 
         // Connect signals
-        e.getIn(1).connect(q);
-        e.negateInput(1);
-        Kp.getIn().connect(e.getOut());
-        ed.getIn().connect(e.getOut());
-        Kd.getIn().connect(ed.getOut());
-        qdd_c.getIn(0).connect(Kp.getOut());
-        qdd_c.getIn(1).connect(Kd.getOut());
-        M.getIn().connect(qdd_c.getOut());
-        qd.getIn().connect(q);
+        ed.getIn(1).connect(qd);
+        ed.negateInput(1);
+        KP.getIn().connect(ed.getOut());
+        e.getIn().connect(ed.getOut());
+        KI.getIn().connect(e.getOut());
+        qddC.getIn(0).connect(KP.getOut());
+        qddC.getIn(1).connect(KI.getOut());
+        M.getIn().connect(qddC.getOut());
+
+        // Additional configuration
+        T eInit = 0.0;
+        e.setInitCondition(eInit);
+        e.setLimit(eLimit, -eLimit);
     }
 };
 
