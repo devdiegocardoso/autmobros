@@ -117,11 +117,13 @@ CarRobotSafetyProperties::CarRobotSafetyProperties(ControlSystem &cs, double dt)
     slStartingUp.setLevelAction([&] (SafetyContext *privateContext) {
         // Actions to execute when the system is starting up
         cs.timedomain.start(); 
+        cs.fwKinOdom.enable();
         privateContext->triggerEvent(systemStarted);
     });
 
     slEmergency.setLevelAction([&] (SafetyContext *privateContext) {
         // Actions to execute when the system is in an emergency state
+        cs.fwKinOdom.disable();
     });
 
     slEmergencyBraking.setLevelAction([&] (SafetyContext *privateContext) {
@@ -133,6 +135,7 @@ CarRobotSafetyProperties::CarRobotSafetyProperties(ControlSystem &cs, double dt)
         // Actions to execute when the system is online
         if(slSystemOn.getNofActivations() * dt >= 1) {
             privateContext->triggerEvent(powerOn);
+            cs.fwKinOdom.enable();
         }
     });
 
@@ -140,6 +143,7 @@ CarRobotSafetyProperties::CarRobotSafetyProperties(ControlSystem &cs, double dt)
         // Actions to execute when the motor power is on
         if(slMotorPowerOn.getNofActivations() * dt >= 5) {
             privateContext->triggerEvent(startMoving);
+            cs.fwKinOdom.enable();
         }
     });
 
@@ -147,6 +151,7 @@ CarRobotSafetyProperties::CarRobotSafetyProperties(ControlSystem &cs, double dt)
         // Actions to execute when the robot is moving
         if(slSystemMoving.getNofActivations() * dt >= 5) {
             privateContext->triggerEvent(stopMoving);
+            cs.fwKinOdom.enable();
         }
     });
 
